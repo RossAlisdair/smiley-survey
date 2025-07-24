@@ -77,9 +77,54 @@
     <div class="smiley" data-value="5">😄</div>
   </div>
   <div class="confirmation" id="confirmation"></div>
-  <button id="downloadBtn" style="display: none;" style="margin-top: 20px; padding: 10px 20px; font-size: 1rem;">Download Responses</button>
+  <button id="downloadBtn" style="display: none; margin-top: 20px; padding: 10px 20px; font-size: 1rem;">
+  Download Responses
+</button>
+
 
   <script>
+  // Download responses as CSV
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    const responses = JSON.parse(localStorage.getItem("smileyResponses") || "[]");
+    if (responses.length === 0) {
+      alert("No responses recorded.");
+      return;
+    }
+
+    let csv = "Value,Timestamp\\n";
+    responses.forEach(r => {
+      csv += `${r.value},${r.timestamp}\\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "responses.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Logo tap sequence logic
+  let tapCount = 0;
+  let tapTimer = null;
+
+  const logo = document.querySelector(".logo"); // your <img class="logo" ...>
+  logo.addEventListener("click", () => {
+    tapCount++;
+    if (tapTimer) clearTimeout(tapTimer);
+
+    tapTimer = setTimeout(() => {
+      tapCount = 0;
+    }, 1500); // Reset after 1.5 seconds of no taps
+
+    if (tapCount >= 5) {
+      document.getElementById("downloadBtn").style.display = "inline-block";
+      tapCount = 0;
+    }
+  });
+</script>
+
     const smileys = document.querySelectorAll('.smiley');
     const confirmation = document.getElementById('confirmation');
 

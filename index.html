@@ -83,105 +83,44 @@
 
 
   <script>
-  // Download responses as CSV
-  document.getElementById("downloadBtn").addEventListener("click", () => {
-    const responses = JSON.parse(localStorage.getItem("smileyResponses") || "[]");
-    if (responses.length === 0) {
-      alert("No responses recorded.");
-      return;
-    }
+  const smileys = document.querySelectorAll('.smiley');
+  const confirmation = document.getElementById('confirmation');
 
-    let csv = "Value,Timestamp\\n";
-    responses.forEach(r => {
-      csv += `${r.value},${r.timestamp}\\n`;
+  smileys.forEach(smiley => {
+    smiley.addEventListener('click', () => {
+      smileys.forEach(s => s.classList.remove('selected'));
+      smiley.classList.add('selected');
+      const value = smiley.getAttribute('data-value');
+      const now = new Date().toISOString();
+      const responses = JSON.parse(localStorage.getItem('smileyResponses') || '[]');
+      responses.push({ value, timestamp: now });
+      localStorage.setItem('smileyResponses', JSON.stringify(responses));
+      confirmation.textContent = "Thank you!";
+      setTimeout(() => {
+        confirmation.textContent = "";
+        smileys.forEach(s => s.classList.remove('selected'));
+      }, 2000);
     });
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "responses.csv";
-    a.click();
-    URL.revokeObjectURL(url);
   });
 
-  // Logo tap sequence logic
+  // Logo tap sequence to reveal download button
   let tapCount = 0;
   let tapTimer = null;
 
-  const logo = document.querySelector(".logo"); // your <img class="logo" ...>
+  const logo = document.querySelector(".logo");
   logo.addEventListener("click", () => {
     tapCount++;
     if (tapTimer) clearTimeout(tapTimer);
-
     tapTimer = setTimeout(() => {
       tapCount = 0;
-    }, 1500); // Reset after 1.5 seconds of no taps
-
+    }, 1500);
     if (tapCount >= 5) {
       document.getElementById("downloadBtn").style.display = "inline-block";
       tapCount = 0;
     }
   });
-</script>
 
-    const smileys = document.querySelectorAll('.smiley');
-    const confirmation = document.getElementById('confirmation');
-
-    smileys.forEach(smiley => {
-      smiley.addEventListener('click', () => {
-        smileys.forEach(s => s.classList.remove('selected'));
-        smiley.classList.add('selected');
-        const value = smiley.getAttribute('data-value');
-        const now = new Date().toISOString();
-        const responses = JSON.parse(localStorage.getItem('smileyResponses') || '[]');
-        responses.push({ value, timestamp: now });
-        localStorage.setItem('smileyResponses', JSON.stringify(responses));
-        confirmation.textContent = "Thank you!";
-        setTimeout(() => {
-          confirmation.textContent = "";
-          smileys.forEach(s => s.classList.remove('selected'));
-        }, 2000);
-      });
-    });
-  
-    // Download responses as CSV
-    document.getElementById("downloadBtn").addEventListener("click", () => {
-      const responses = JSON.parse(localStorage.getItem("smileyResponses") || "[]");
-      if (responses.length === 0) {
-        alert("No responses recorded.");
-        return;
-      }
-
-      let csv = "Value,Timestamp\n";
-      responses.forEach(r => {
-        csv += `${r.value},${r.timestamp}\n`;
-      });
-
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "responses.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-  
-    // Secret key sequence logic to reveal the download button
-    let secretBuffer = "";
-    const secretCode = "RESPONSE ";
-
-    document.addEventListener("keydown", (e) => {
-      secretBuffer += e.key;
-      if (secretBuffer.length > secretCode.length) {
-        secretBuffer = secretBuffer.slice(-secretCode.length);
-      }
-
-      if (secretBuffer.toUpperCase() === secretCode.toUpperCase()) {
-        document.getElementById("downloadBtn").style.display = "inline-block";
-        secretBuffer = "";
-      }
-    });
-  </script>
-</body>
-</html>
+  // Download responses as CSV
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    const responses = JSON.parse(localStorage.getItem("smileyResponses") || "[]");
+    if (responses.length === 0) {

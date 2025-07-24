@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smiley Survey</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: #f0f8ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .logo {
+      max-width: 300px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      max-width: 90%;
+    }
+
+    .smileys {
+      display: flex;
+      gap: 20px;
+      font-size: 3rem;
+      cursor: pointer;
+    }
+
+    .smiley {
+      padding: 20px;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .smiley:hover {
+      transform: scale(1.2);
+    }
+
+    .selected {
+      outline: 4px solid #333;
+    }
+
+    .smiley[data-value="1"] { background-color: #e74c3c; }
+    .smiley[data-value="2"] { background-color: #e67e22; }
+    .smiley[data-value="3"] { background-color: #f1c40f; }
+    .smiley[data-value="4"] { background-color: #a9dfbf; }
+    .smiley[data-value="5"] { background-color: #2ecc71; }
+
+    .confirmation {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      color: #4caf50;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <img src="wardlaw-logo.png" alt="Wardlaw Museum Logo" class="logo" />
+  <h1>Please let us know how you felt about today's event</h1>
+  <div class="smileys">
+    <div class="smiley" data-value="1">😠</div>
+    <div class="smiley" data-value="2">😞</div>
+    <div class="smiley" data-value="3">😐</div>
+    <div class="smiley" data-value="4">🙂</div>
+    <div class="smiley" data-value="5">😄</div>
+  </div>
+  <div class="confirmation" id="confirmation"></div>
+  <button id="downloadBtn" style="display: none;" style="margin-top: 20px; padding: 10px 20px; font-size: 1rem;">Download Responses</button>
+
+  <script>
+    const smileys = document.querySelectorAll('.smiley');
+    const confirmation = document.getElementById('confirmation');
+
+    smileys.forEach(smiley => {
+      smiley.addEventListener('click', () => {
+        smileys.forEach(s => s.classList.remove('selected'));
+        smiley.classList.add('selected');
+        const value = smiley.getAttribute('data-value');
+        const now = new Date().toISOString();
+        const responses = JSON.parse(localStorage.getItem('smileyResponses') || '[]');
+        responses.push({ value, timestamp: now });
+        localStorage.setItem('smileyResponses', JSON.stringify(responses));
+        confirmation.textContent = "Thank you!";
+        setTimeout(() => {
+          confirmation.textContent = "";
+          smileys.forEach(s => s.classList.remove('selected'));
+        }, 2000);
+      });
+    });
+  
+    // Download responses as CSV
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const responses = JSON.parse(localStorage.getItem("smileyResponses") || "[]");
+      if (responses.length === 0) {
+        alert("No responses recorded.");
+        return;
+      }
+
+      let csv = "Value,Timestamp\n";
+      responses.forEach(r => {
+        csv += `${r.value},${r.timestamp}\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "responses.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  
+    // Secret key sequence logic to reveal the download button
+    let secretBuffer = "";
+    const secretCode = "RESPONSE ";
+
+    document.addEventListener("keydown", (e) => {
+      secretBuffer += e.key;
+      if (secretBuffer.length > secretCode.length) {
+        secretBuffer = secretBuffer.slice(-secretCode.length);
+      }
+
+      if (secretBuffer.toUpperCase() === secretCode.toUpperCase()) {
+        document.getElementById("downloadBtn").style.display = "inline-block";
+        secretBuffer = "";
+      }
+    });
+  </script>
+</body>
+</html>

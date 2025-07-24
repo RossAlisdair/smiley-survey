@@ -81,7 +81,6 @@
   Download Responses
 </button>
 
-
   <script>
   const smileys = document.querySelectorAll('.smiley');
   const confirmation = document.getElementById('confirmation');
@@ -103,24 +102,9 @@
     });
   });
 
-  // Logo tap sequence to reveal download button
+  // Tap logo 5x to show download button
   let tapCount = 0;
   let tapTimer = null;
 
   const logo = document.querySelector(".logo");
-  logo.addEventListener("click", () => {
-    tapCount++;
-    if (tapTimer) clearTimeout(tapTimer);
-    tapTimer = setTimeout(() => {
-      tapCount = 0;
-    }, 1500);
-    if (tapCount >= 5) {
-      document.getElementById("downloadBtn").style.display = "inline-block";
-      tapCount = 0;
-    }
-  });
-
-  // Download responses as CSV
-  document.getElementById("downloadBtn").addEventListener("click", () => {
-    const responses = JSON.parse(localStorage.getItem("smileyResponses") || "[]");
-    if (responses.length === 0) {
+  logo.addEventListener("c
